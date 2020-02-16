@@ -29,6 +29,7 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.graphs.cfg.ControlFlowEdge;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.runtime.mock.MockFramework;
 import org.evosuite.setup.Call;
 import org.evosuite.setup.CallContext;
@@ -190,6 +191,7 @@ public class ExceptionBranchEnhancer<T extends Chromosome> {
 					/**
 					 *  means that the goal for the exception is not instrumented
 					 */
+					continue;
 					
 				}
 			}
@@ -236,6 +238,14 @@ public class ExceptionBranchEnhancer<T extends Chromosome> {
 					.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
 					.getAllInstructionsAtClass(className, lineNum);
 
+			// unregistered method
+			if (insList == null && RuntimeInstrumentation.checkIfCanInstrument(className)) {
+				GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerClass(className);
+				insList = BytecodeInstructionPool
+						.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
+						.getAllInstructionsAtClass(className, lineNum);			
+			}
+			
 			if(insList != null && !insList.isEmpty()) {
 				BytecodeInstruction ins = null;
 				if(level == 0){
@@ -253,11 +263,12 @@ public class ExceptionBranchEnhancer<T extends Chromosome> {
 				}
 				catch(Exception e) {
 					if(e instanceof IllegalStateException) {
-						String methodName = ins.getMethodName();
-						ActualControlFlowGraph cfg = MethodUtil.registerMethod(className, methodName);
+						String methodName1 = ins.getMethodName();
+						ActualControlFlowGraph cfg = MethodUtil.registerMethod(className, methodName1);
 						if(cfg != null) {
 							GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).
 							alwaysRegisterActualCFG(cfg);
+//							GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getCDG(className,methodName1);
 							cds = ins.getControlDependencies();							
 						}
 						
@@ -269,6 +280,9 @@ public class ExceptionBranchEnhancer<T extends Chromosome> {
 						FitnessFunction<T> fitness = createOppFitnessFunction(cd);
 						StackTraceElement[] newStack = Arrays.copyOfRange(stack, level, stack.length);
 						CallContext context = new CallContext(newStack, true);
+						if (context.getContext() == null) {
+							return null;
+						}
 						return new ContextFitnessFunction<T>(context, fitness);
 					}
 				} 

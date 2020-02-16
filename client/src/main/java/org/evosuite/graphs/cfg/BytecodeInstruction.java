@@ -1037,7 +1037,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		
 		RawControlFlowGraph rawcfg = GraphPool.getInstance(classLoader).getRawCFG(calledClass, calledMethod);
 		if (rawcfg == null) {
-			rawcfg = GraphPool.getInstance(classLoader).retrieveRawCFG(calledClass, calledMethod);
+			GraphPool.getInstance(classLoader).registerMethod(calledClass, calledMethod);
+			rawcfg = GraphPool.getInstance(classLoader).getRawCFG(calledClass, calledMethod);
 		}
 		return rawcfg;
 	}

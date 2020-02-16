@@ -25,8 +25,10 @@ package org.evosuite.setup;
 import org.evosuite.PackageInfo;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
+import org.evosuite.runtime.instrumentation.RuntimeInstrumentation;
 import org.evosuite.testcase.execution.MethodCall;
 
 import java.io.Serializable;
@@ -116,8 +118,11 @@ public class CallContext implements Serializable {
 				BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).
 				getAllInstructionsAtClass(className, lineNumber);
 		
-		if(insList == null) {
-			return null;
+		if (insList == null && RuntimeInstrumentation.checkIfCanInstrument(className)) {
+			GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).registerClass(className);
+			insList = BytecodeInstructionPool
+					.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
+					.getAllInstructionsAtClass(className, lineNumber);			
 		}
 		
 		if(!insList.isEmpty()) {
@@ -154,6 +159,11 @@ public class CallContext implements Serializable {
 		for (int i = startPos; i >= endPos; i--) {
 			StackTraceElement element = stackTrace[i];
 			String methodSig = covert2Sig(element);
+			if (methodSig == null) {
+				this.hcode = 0;
+				this.context = null;
+				return;
+			}
 			Call newCall = new Call(element.getClassName(), methodSig, element.getLineNumber());
 			newCall.setLineNumber(element.getLineNumber());
 			boolean skip = false;
@@ -164,11 +174,12 @@ public class CallContext implements Serializable {
 					skip = true;
 				}
 			}
-			if(!skip)
-			context.add(newCall);
+			if (!skip) {
+				context.add(newCall);
+			}
 		}
 		this.context=context;
-		hcode = this.context.hashCode();
+		this.hcode = this.context.hashCode();
 	}
 	
 	/**
