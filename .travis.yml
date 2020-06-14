@@ -4,7 +4,7 @@ sudo: false
 dist: trusty
 
 jdk:
-  - oraclejdk8
+  - openjdk8
 
 script:
    - mvn -Dtest=BranchEnhancementTest#testColtExample test -pl EvosuiteTest -e
@@ -16,5 +16,4 @@ script:
    - mvn -Dtest=SmartMutationTest#testStringArrayExample test -pl EvosuiteTest -e
    - mvn -Dtest=CascadingCallExampleTest#testCascadingCallExample test -pl EvosuiteTest -e
    - mvn -Dtest=ArrayGenerationExampleTest#testArrayGenerationExample test -pl EvosuiteTest -e
-   
    

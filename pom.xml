@@ -37,10 +37,6 @@
 		<module>EvosuiteTest</module>
 		<module>client</module>
 		<module>runtime</module>
-		<module>plugins</module>
-		<module>standalone_runtime</module>
-		<module>shaded</module>
-		<module>generated</module>
 	</modules>
 
 	<prerequisites>

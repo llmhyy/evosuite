@@ -44,6 +44,7 @@ public class SmartMutationTest {
 		String fitnessApproach = "fbranch";
 
 		int timeBudget = 100;
+
 		EvoTestResult resultT = TestUility.evosuite(targetClass, targetMethod, cp, timeBudget, true, fitnessApproach);
 
 		Properties.ADOPT_SMART_MUTATION = false;
