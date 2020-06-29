@@ -13,7 +13,7 @@ install:
 
 script:
    # branch enhancement
-   - mvn -Dtest=ColtExampleTest,InevitableConstructorExampleTest test -pl EvosuiteTest -e
+   - mvn -Dtest=ColtExampleTest test -pl EvosuiteTest -e
 
    #- mvn -Dtest=ColtExampleTest test -pl EvosuiteTest -e
    #- mvn -Dtest=InevitableConstructorExampleTest test -pl EvosuiteTest -e
